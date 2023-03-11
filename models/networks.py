@@ -121,62 +121,69 @@ def define_loss(opt):
 # Classes For Classification / Segmentation Networks
 ##############################################################################
 
-class MeshConvNet(nn.Module):
-    """Network for learning a global shape descriptor (classification)
-    """
-    def __init__(self, norm_layer, nf0, conv_res, nclasses, input_res, pool_res, fc_n,
-                 nresblocks=3):
-        super(MeshConvNet, self).__init__()
-        self.k = [nf0] + conv_res
-        self.res = [input_res] + pool_res
-        norm_args = get_norm_args(norm_layer, self.k[1:])
+#-------------------------- Original MeshConvNet ------------------------------
+#class MeshConvNet(nn.Module):
+#    """Network for learning a global shape descriptor (classification)
+#    """
+#    def __init__(self, norm_layer, nf0, conv_res, nclasses, input_res, pool_res, fc_n,
+#                 nresblocks=3):
+#        super(MeshConvNet, self).__init__()
+#        self.k = [nf0] + conv_res
+#        self.res = [input_res] + pool_res
+#        norm_args = get_norm_args(norm_layer, self.k[1:])
+#
+#        for i, ki in enumerate(self.k[:-1]):
+#            setattr(self, 'conv{}'.format(i), MResConv(ki, self. k[i + 1], nresblocks))
+#            setattr(self, 'norm{}'.format(i), norm_layer(**norm_args[i]))
+#            setattr(self, 'pool{}'.format(i), MeshPool(self.res[i + 1]))
+#
+#
+#        self.gp = torch.nn.AvgPool1d(self.res[-1])
+#        # self.gp = torch.nn.MaxPool1d(self.res[-1])
+#        self.fc1 = nn.Linear(self.k[-1], fc_n)
+#        self.fc2 = nn.Linear(fc_n, nclasses)
+#
+#    def forward(self, x, mesh):
+#
+#        for i in range(len(self.k) - 1):
+#            x = getattr(self, 'conv{}'.format(i))(x, mesh)
+#            x = F.relu(getattr(self, 'norm{}'.format(i))(x))
+#            x = getattr(self, 'pool{}'.format(i))(x, mesh)
+#
+#        x = self.gp(x)
+#        x = x.view(-1, self.k[-1])
+#
+#        x = F.relu(self.fc1(x))
+#        x = self.fc2(x)
+#        return x
+#
+#class MResConv(nn.Module):
+#    def __init__(self, in_channels, out_channels, skips=1):
+#        super(MResConv, self).__init__()
+#        self.in_channels = in_channels
+#        self.out_channels = out_channels
+#        self.skips = skips
+#        self.conv0 = MeshConv(self.in_channels, self.out_channels, bias=False)
+#        for i in range(self.skips):
+#            setattr(self, 'bn{}'.format(i + 1), nn.BatchNorm2d(self.out_channels))
+#            setattr(self, 'conv{}'.format(i + 1),
+#                    MeshConv(self.out_channels, self.out_channels, bias=False))
+#
+#    def forward(self, x, mesh):
+#        x = self.conv0(x, mesh)
+#        x1 = x
+#        for i in range(self.skips):
+#            x = getattr(self, 'bn{}'.format(i + 1))(F.relu(x))
+#            x = getattr(self, 'conv{}'.format(i + 1))(x, mesh)
+#        x += x1
+#        x = F.relu(x)
+#        return x
+#------------------------------------------------------------------------------
 
-        for i, ki in enumerate(self.k[:-1]):
-            setattr(self, 'conv{}'.format(i), MResConv(ki, self.k[i + 1], nresblocks))
-            setattr(self, 'norm{}'.format(i), norm_layer(**norm_args[i]))
-            setattr(self, 'pool{}'.format(i), MeshPool(self.res[i + 1]))
-
-
-        self.gp = torch.nn.AvgPool1d(self.res[-1])
-        # self.gp = torch.nn.MaxPool1d(self.res[-1])
-        self.fc1 = nn.Linear(self.k[-1], fc_n)
-        self.fc2 = nn.Linear(fc_n, nclasses)
-
-    def forward(self, x, mesh):
-
-        for i in range(len(self.k) - 1):
-            x = getattr(self, 'conv{}'.format(i))(x, mesh)
-            x = F.relu(getattr(self, 'norm{}'.format(i))(x))
-            x = getattr(self, 'pool{}'.format(i))(x, mesh)
-
-        x = self.gp(x)
-        x = x.view(-1, self.k[-1])
-
-        x = F.relu(self.fc1(x))
-        x = self.fc2(x)
-        return x
-
-class MResConv(nn.Module):
-    def __init__(self, in_channels, out_channels, skips=1):
-        super(MResConv, self).__init__()
-        self.in_channels = in_channels
-        self.out_channels = out_channels
-        self.skips = skips
-        self.conv0 = MeshConv(self.in_channels, self.out_channels, bias=False)
-        for i in range(self.skips):
-            setattr(self, 'bn{}'.format(i + 1), nn.BatchNorm2d(self.out_channels))
-            setattr(self, 'conv{}'.format(i + 1),
-                    MeshConv(self.out_channels, self.out_channels, bias=False))
-
-    def forward(self, x, mesh):
-        x = self.conv0(x, mesh)
-        x1 = x
-        for i in range(self.skips):
-            x = getattr(self, 'bn{}'.format(i + 1))(F.relu(x))
-            x = getattr(self, 'conv{}'.format(i + 1))(x, mesh)
-        x += x1
-        x = F.relu(x)
-        return x
+#-------------------------- Proposed ------------------------------------------
+#
+#
+#-The code will be made publicly available upon acceptance of the paper.-
 
 
 class MeshEncoderDecoder(nn.Module):

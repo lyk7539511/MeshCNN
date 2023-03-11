@@ -62,11 +62,18 @@ class MeshConv(nn.Module):
         f = f.permute(0, 3, 1, 2)
 
         # apply the symmetric functions for an equivariant conv
-        x_1 = f[:, :, :, 1] + f[:, :, :, 3]
-        x_2 = f[:, :, :, 2] + f[:, :, :, 4]
-        x_3 = torch.abs(f[:, :, :, 1] - f[:, :, :, 3])
-        x_4 = torch.abs(f[:, :, :, 2] - f[:, :, :, 4])
-        f = torch.stack([f[:, :, :, 0], x_1, x_2, x_3, x_4], dim=3)
+        #---------------------- Original ----------------------
+        # x_1 = f[:, :, :, 1] + f[:, :, :, 3]
+        # x_2 = f[:, :, :, 2] + f[:, :, :, 4]
+        # x_3 = torch.abs(f[:, :, :, 1] - f[:, :, :, 3])
+        # x_4 = torch.abs(f[:, :, :, 2] - f[:, :, :, 4])
+        # f = torch.stack([f[:, :, :, 0], x_1, x_2, x_3, x_4], dim=3)
+        #------------------------------------------------------
+
+        #---------------------- Proposed ----------------------
+        #
+        #
+        #-The code will be made publicly available upon acceptance of the paper.-
         return f
 
     def pad_gemm(self, m, xsz, device):
